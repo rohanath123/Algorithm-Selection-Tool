@@ -8,3 +8,26 @@ Meta-Learning is mostly about developing algorithms that can generalize concepts
 For example, if shown meta data that contains pictures of bikes, then shown a meta dataset of pictures of cars, the algorithm should be able to infer "wheels", even if the task of the algorithm on the data (not the meta data) was to classify only the type of bikes and cars. 
 Therfore, meta learning doesnt seem plausible for this project. 
 
+The aim of this project is not to create one algorithm that can perform well over various tasks, it is to create a framework to choose an algorithm that best fits the task. 
+This way, it is not a direct subfield or within the bounds of traditional artificial intelligence, it is in the bounds of basic search-and-match algorithms, which makes it easier to implement. 
+
+
+START OFF with only LINEAR REGRESSION and LOGISITC REGRESSION. The plain is to create modular, inter-funcitoning scripts of code that work together to form the entire machine learning pipeline. 
+I'm considering using the iris flower dataset for logistic regression, and _____ for linear regression. 
+
+I'll probably input cleaned datasets. 
+Essentially, the basic pipeline in the machine learning problem-solving scenario is:
+- clean dataset (remove NaNs, make sure dtypes are uniform, make sure there's enough data, convert non-numeric data into different encoded columns, etc)
+- analyse and feature engineer* (may not include this right now, because feature engineering and data analysis is a bitch, and also because ill be using simple starter datasets)
+- choose which algorithm to use, at least initially (depending on purpose, application, computation space, complexity, and performance)
+- implement algorithm, split data, fit data and train (hyperparameter initialization)
+- analyse accuracy metrics (choose metric, implement and see score)
+- optimization and hyperparameter tuning (k-fold accuracy, adjust hyperparameters)
+
+It seems quite evident that the entire machine learning pipeline is very well defined, despite the fact that I haven't explained it quite well here. 
+Therefore, it seems straightforward that because each step and its purpose in the overall pipeline is so well defined, modular, interconnected and dependant components can be developed. 
+
+The modules that must be implemented are:
+- statement understanding and purpose detection module
+- purpose-specific general ML concept selection module (e.g. classification, regression, etc)
+- 
