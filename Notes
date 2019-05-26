@@ -1,0 +1,10 @@
+Notes:
+
+1. Meta-Learning: learning to learn
+https://bair.berkeley.edu/blog/2017/07/18/learning-to-learn/
+https://medium.com/huggingface/from-zero-to-research-an-introduction-to-meta-learning-8e16e677f78a
+
+Meta-Learning is mostly about developing algorithms that can generalize concepts from different datasets (or meta data of those data sets) and use those concepts to be able to accurately infer data from another dataset. 
+For example, if shown meta data that contains pictures of bikes, then shown a meta dataset of pictures of cars, the algorithm should be able to infer "wheels", even if the task of the algorithm on the data (not the meta data) was to classify only the type of bikes and cars. 
+Therfore, meta learning doesnt seem plausible for this project. 
+
