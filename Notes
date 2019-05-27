@@ -38,4 +38,4 @@ The modules that must be implemented are:
 - accuracy metric calculation module 
 - optimization module 
 - results module 
-- trained model savig module 
+- trained model saving module 
