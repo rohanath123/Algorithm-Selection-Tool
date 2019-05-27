@@ -29,5 +29,13 @@ Therefore, it seems straightforward that because each step and its purpose in th
 
 The modules that must be implemented are:
 - statement understanding and purpose detection module
-- purpose-specific general ML concept selection module (e.g. classification, regression, etc)
-- 
+- purpose-specific "general ML algorithm" selection module (e.g. classification, regression, etc)
+- data cleaning module (remove blanks, splitting into training, testing and validation, etc)
+- all algorithms, i.e. model.py files for all algorithms 
+- training module 
+- validation module 
+- testing module 
+- accuracy metric calculation module 
+- optimization module 
+- results module 
+- trained model savig module 
