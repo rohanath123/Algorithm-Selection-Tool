@@ -1,6 +1,0 @@
-1. Auto seperation between:
-    - A continous feature, and
-    - A classification feature.
-    
-    Eg. Continous Feature - 1.1, 2.0, 5.0, -3.0
-        Classification Feature - -1,1,2,3,4,0
