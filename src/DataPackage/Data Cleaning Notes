@@ -1,0 +1,11 @@
+As of right now:
+
+raw data -> dtypes, columns, target variable column -> check dependencies -> remove columns with low dependency to target variable -> check NaN counts -> remove NaNs conditionally -> columnize 
+
+This should be enough for now. 
+I've already implemented:
+1. dtypes, columns, target variable column
+2. checking nan counts 
+3. columnization 
+
+Implementing the rest.
