@@ -9,3 +9,16 @@ I've already implemented:
 3. columnization 
 
 Implementing the rest.
+
+Update: as of right now, feature extraction and understanding is very far away. I'm thinking of not including that right now, but I need to be able to clean
+the data in one way or another to make it suitable for training. 
+GARBAGE IN -> GARBAGE OUT. Ya can't feed a model shitty data and not expect a shitty result. 
+To solve that, and the universal probelm of how do you remove things like "ID" columns and stuff like that, I'm leaning on dependency. 
+dataframe.corr() gives you a correlation matrix, with which you can see how correlated the final target variable is with every other columns. This immediately
+rules out things like "name", "ID", "notes", and other garbage data. 
+THe problem is that in ML, deleting any kind of data at all is very hurtful, because theres always something to be learnt from data. 
+For example, in the titanic dataset, my algorithm is deleting the "age" column because its not very correlated to the target variable, but in kernels 
+that ive seen on kaggle, they use "age" to change it into a categorical column with categories like "old", "middle aged" and "young", which makes sense in
+the bigger picture because women and children are made to evacute first. 
+But then again that falls under feature extraction, which is not territory i want to explore right now. 
+Lets see
