@@ -4,6 +4,7 @@ import numpy as np
 class Data:
 	def __init__(self, PATH, task):
 		self.main_df = pd.read_csv(PATH)
+		self.task = task
 
 		self.columns = []
 		self.types = []
@@ -16,8 +17,9 @@ class Data:
 		self.nan_list = []
 		self.cat_values_dict_array = []
 		self.dep = []
-		self.essentail_cols = []
+		self.essential_cols = []
 
+		self.df_temp = self.main_df.copy()
 
 
 		self.clean_data()
@@ -28,8 +30,11 @@ class Data:
 		self.convert_cat()
 		self.make_dependencies()
 		self.sift_essential()
-		#self.count_nan()
-		#self.remove_nan()
+		self.remove_non_essential()
+
+		self.set_initial_vars()
+		self.count_nan()
+		self.remove_nan()
 
 	def set_initial_vars(self):
 		self.set_cols()
@@ -38,21 +43,11 @@ class Data:
 		self.set_types()
 		self.make_type_dict()
 
-	def make_dependencies(self):
-		self.dep = self.main_df.corr().values.tolist()[0]
-		self.dep = self.dep[1:len(self.dep)]
-		print(self.dep)
-
-	def sift_essential(self):
-		self.essentail_cols = [self.idx2col[i+1] for i in range(len(self.dep)) if self.dep[i] >= 0.1 or self.dep[i] <= -0.1]
-		print(self.essentail_cols)
-
-
 	def set_cols(self):
 		self.columns = list(self.main_df.columns)
-
+		
 	def set_labels(self):
-		self.y_labels = list(self.main_df[self.columns[0]].tolist())
+		self.y_labels = self.main_df[self.columns[0]]
 		self.target_var = self.columns[0]
 
 	def index(self):
@@ -62,10 +57,11 @@ class Data:
 
 	def set_types(self):
 		self.types = list(self.main_df.dtypes)
+		#print(self.types)
 
 	def make_type_dict(self):
-		for i in range(len(self.columns)):
-			self.dtype_dict[self.columns[i]] = self.types[i]
+		self.dtype_dict = {self.columns[i]:self.types[i] for i in range(len(self.columns))}
+		
 
 	def convert_cat(self):
 		for i in range(len(self.dtype_dict)):
@@ -80,16 +76,50 @@ class Data:
 		temp_dict["NAME"] = self.idx2col[col_idx]
 		self.cat_values_dict_array.append(temp_dict)
 
+	def make_dependencies(self):
+		self.dep = self.main_df.corr().values.tolist()[0]
+		self.dep_total = self.main_df.corr()
+		self.dep = self.dep[1:len(self.dep)]
+
+	def sift_essential(self):
+		self.essential_cols = [self.idx2col[i+1] for i in range(1, len(self.dep)) if self.dep[i] >= 0.05 or self.dep[i] <= -0.05]
+		self.essential_cols[0] = self.columns[0]
+
+	def remove_non_essential(self):
+		non_ess = [self.columns[i] for i in range(len(self.columns)) if self.columns[i] not in self.essential_cols]
+		for i in range(len(non_ess)):
+			self.df_temp = self.df_temp.drop([non_ess[i]], axis = 1)
+
+		self.main_df = self.df_temp.copy()
+
 	def count_nan(self):
 		self.nan_count = list(self.main_df.isna().sum())
-		self.nan_list = [i for i in range(len(self.nan_count)) if self.nan_count[i] > 0]
+		self.nan_list = [self.idx2col[i] for i in range(len(self.nan_count)) if self.nan_count[i] > 0]
 
 	def remove_nan(self):
-		for n in self.nan_list:
-			if self.dtype_dict[self.idx2col[n]] == np.dtype('O'):
-				self.create_nan_col(self.idx2col[n])
+		if self.task == "classification":
+			classes, classwise_mean = self.calculate_classwise_mean()
+			#for col in self.nan_list:
+			#	for i in range(len(self.main_df)):
+			#		if self.main_df.iloc[i][self.col2idx[col]] == None:
+			#			self.main_df.iloc[i][self.col2idx[col]] = classwise_mean[self.main_df.iloc[i][0]][col]
 
-data = Data("D:/Machine Learning Datasets/iris-species/iris_ruined.csv", "classification")
+			for 
+		
+		print(self.main_df)
 
+
+
+
+	def calculate_classwise_mean(self):
+		classes = self.y_labels.unique().tolist()
+		classwise_mean = {}
+		for c in classes:
+			temp = self.main_df[self.main_df[self.columns[0]] == c]
+			classwise_mean[c] = {self.columns[i]: temp[self.columns[i]].values.mean() for i in range(len(self.columns)) if self.dtype_dict[self.columns[i]] != np.dtype('O')}
+		return classes, classwise_mean
+
+
+data = Data("D:/Machine Learning Datasets/titanic/train.csv", "classification")
 
 
