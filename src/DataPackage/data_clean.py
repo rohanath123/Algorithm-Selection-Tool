@@ -135,7 +135,7 @@ class Data:
 		self.handle_cat_nans()
 						
 	def handle_numeric_nans(self):
-		#HANDLE NUMERIC NANS BY IMPUTING MEAN VALUES ON A PER-CLASS BASIS IF CLASSIFICATION
+		#HANDLE NUMERIC NANS BY IMPUTING MEAN VALUES ON A PER-CLASS AND PER-COLUMN BASIS IF CLASSIFICATION AND ON ONLY A PER-COLUMN BASIS IF CLASSIFICATION
 		if self.task == 'classification':
 			classes, classwise_mean = self.calculate_classwise_mean()
 			classwise_frames = [self.main_df[self.main_df[self.columns[0]] == classes[i]] for i in range(len(classes))]
@@ -153,7 +153,11 @@ class Data:
 			self.set_labels()
 
 		elif self.task == 'regression':
-			print("regression")
+			colwise_mean = self.calculate_columnwise_mean()
+			for col in self.nan_list:
+				if self.dtype_dict[col] != np.dtype('O'):
+					self.main_df[col] = self.main_df[col].fillna(colwise_mean[col])
+
 
 	def calculate_classwise_mean(self):
 		#CALCULATE CLASSWISE MEANS FOR IMPUTATION
@@ -164,6 +168,14 @@ class Data:
 			classwise_mean[c] = {self.columns[i]: temp[self.columns[i]].fillna(0).values.mean() for i in range(len(self.columns)) if self.dtype_dict[self.columns[i]] != np.dtype('O')}
 		return classes, classwise_mean
 
+	def calculate_columnwise_mean(self):
+		#CALCULATE COLUMNWISE MEANS FOR IMPUTATION
+		colwise_mean = {}
+		temp = self.main_df.copy()
+		colwise_mean = {self.columns[i]:temp[self.columns[i]].fillna(0).values.mean() for i in range(len(self.columns)) if self.dtype_dict[self.columns[i]] != np.dtype('O')}
+		return colwise_mean 
+
+
 	def handle_cat_nans(self):
 		#HANDLE CATEGORICAL NANS BY CREATING MISSING VALUE IN COLUMN AS A CATEGORY ON ITS OWN AS 'MISSING_'+COL NAME IF CLASSIFICATION
 		if self.task == 'classification':
@@ -171,5 +183,5 @@ class Data:
 					if self.dtype_dict[col] == np.dtype('O'):
 						self.main_df[col] = self.main_df[col].fillna("Missing_"+col)
 
-data = Data("D:/Machine Learning Datasets/game-of-thrones/character-deaths.csv", "classification")
-print(data.main_df.head())
+data = Data("D:/Machine Learning Datasets/titanic/train.csv", "regression")
+print(data.main_df)
