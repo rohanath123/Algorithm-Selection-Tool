@@ -3,14 +3,10 @@ import numpy as np
 
 class Data:
 	def __init__(self, PATH, task):
-		self.main_df = pd.read_csv(PATH)
+		self.ultra_df = pd.read_csv(PATH)
+		self.main_df = self.ultra_df.copy()
 		self.task = task
 
-		self.columns = []
-		self.types = []
-		self.dtype_dict = {}
-		self.idx2col = {}
-		self.col2idx = {}
 		self.y_labels = []
 		self.target_var = ""
 		self.nan_count = 0
@@ -37,6 +33,12 @@ class Data:
 		self.remove_nan()
 
 	def set_initial_vars(self):
+		self.dtype_dict = {}
+		self.idx2col = {}
+		self.col2idx = {}
+		self.columns = []
+		self.types = []
+
 		self.set_cols()
 		self.set_labels()
 		self.index()
@@ -97,29 +99,39 @@ class Data:
 		self.nan_list = [self.idx2col[i] for i in range(len(self.nan_count)) if self.nan_count[i] > 0]
 
 	def remove_nan(self):
-		if self.task == "classification":
+		self.handle_numeric_nans()
+		#self.handle_cat_nans()
+						
+	def handle_numeric_nans(self):
+		if self.task == 'classification':
 			classes, classwise_mean = self.calculate_classwise_mean()
-			#for col in self.nan_list:
-			#	for i in range(len(self.main_df)):
-			#		if self.main_df.iloc[i][self.col2idx[col]] == None:
-			#			self.main_df.iloc[i][self.col2idx[col]] = classwise_mean[self.main_df.iloc[i][0]][col]
+			classwise_frames = [self.main_df[self.main_df[self.columns[0]] == classes[i]] for i in range(len(classes))]
 
-			for 
-		
-		print(self.main_df)
+			for i in range(len(classwise_frames)):
+				for col in self.nan_list:
+					if self.dtype_dict[col] != np.dtype('O'):
+						classwise_frames[i] = classwise_frames[i].fillna({col:classwise_mean[classes[i]][col]})
 
+			df3 = pd.DataFrame([])
+			for i in range(len(classwise_frames)):
+				df3 = pd.concat([df3, classwise_frames[i]])
 
+			self.main_df = df3.sample(frac = 1).reset_index(drop = True)
+			self.set_labels()
 
+		elif self.task == 'regression':
+			print("regression")
 
 	def calculate_classwise_mean(self):
 		classes = self.y_labels.unique().tolist()
 		classwise_mean = {}
 		for c in classes:
 			temp = self.main_df[self.main_df[self.columns[0]] == c]
-			classwise_mean[c] = {self.columns[i]: temp[self.columns[i]].values.mean() for i in range(len(self.columns)) if self.dtype_dict[self.columns[i]] != np.dtype('O')}
+			classwise_mean[c] = {self.columns[i]: temp[self.columns[i]].fillna(0).values.mean() for i in range(len(self.columns)) if self.dtype_dict[self.columns[i]] != np.dtype('O')}
 		return classes, classwise_mean
 
+		
 
 data = Data("D:/Machine Learning Datasets/titanic/train.csv", "classification")
-
-
+print(data.main_df)
+print(data.y_labels)
