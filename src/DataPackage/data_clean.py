@@ -15,23 +15,23 @@ class Data:
 		self.dep = []
 		self.essential_cols = []
 
-		self.df_temp = self.main_df.copy()
-
 
 		self.clean_data()
 	
 	def clean_data(self):
 
 		self.set_initial_vars()
-		self.convert_cat()
-		self.make_dependencies()
-		self.sift_essential()
-		self.remove_non_essential()
-
+		self.handle_nans()
 		self.set_initial_vars()
-		self.count_nan()
-		self.remove_nan()
+		self.convert_cat()
+		self.sort_with_dependencies()
+		self.set_initial_vars()
+		self.one_hot_encode()
+		self.set_initial_vars()
+		
 
+		
+		
 	def set_initial_vars(self):
 		self.dtype_dict = {}
 		self.idx2col = {}
@@ -44,6 +44,15 @@ class Data:
 		self.index()
 		self.set_types()
 		self.make_type_dict()
+
+	def sort_with_dependencies(self):
+		self.make_dependencies()
+		self.sift_essential()
+		self.remove_non_essential()
+
+	def handle_nans(self):
+		self.count_nan()
+		self.remove_nan()
 
 	def set_cols(self):
 		self.columns = list(self.main_df.columns)
@@ -68,9 +77,9 @@ class Data:
 	def convert_cat(self):
 		for i in range(len(self.dtype_dict)):
 			if self.dtype_dict[self.idx2col[i]] == np.dtype('O'):
-				self.numeric2cat(i)
+				self.cat2numeric(i)
 
-	def numeric2cat(self, col_idx):
+	def cat2numeric(self, col_idx):
 		unq = list(self.main_df[self.idx2col[col_idx]].unique())
 		temp_dict = {unq[i-1]:i for i in range(1, len(unq)+1)}
 
@@ -78,21 +87,27 @@ class Data:
 		temp_dict["NAME"] = self.idx2col[col_idx]
 		self.cat_values_dict_array.append(temp_dict)
 
+	def one_hot_encode(self):
+		for col in self.columns:
+			count = self.main_df[col].unique()
+			if len(count) <= 3 and len(count) > 1 and col!=self.columns[0]:
+				self.main_df = pd.concat([self.main_df, pd.get_dummies(self.main_df[col], prefix = col)], axis = 1).drop(col, axis = 1)
+
 	def make_dependencies(self):
 		self.dep = self.main_df.corr().values.tolist()[0]
 		self.dep_total = self.main_df.corr()
-		self.dep = self.dep[1:len(self.dep)]
+		print(self.dep_total)
 
 	def sift_essential(self):
-		self.essential_cols = [self.idx2col[i+1] for i in range(1, len(self.dep)) if self.dep[i] >= 0.05 or self.dep[i] <= -0.05]
-		self.essential_cols[0] = self.columns[0]
-
+		self.essential_cols = [self.idx2col[i] for i in range(len(self.dep)) if self.dep[i] >= 0.04 or self.dep[i] <= -0.04]
+		
 	def remove_non_essential(self):
+		df_temp = self.main_df.copy()
 		non_ess = [self.columns[i] for i in range(len(self.columns)) if self.columns[i] not in self.essential_cols]
 		for i in range(len(non_ess)):
-			self.df_temp = self.df_temp.drop([non_ess[i]], axis = 1)
+			df_temp = df_temp.drop([non_ess[i]], axis = 1)
 
-		self.main_df = self.df_temp.copy()
+		self.main_df = df_temp.copy()
 
 	def count_nan(self):
 		self.nan_count = list(self.main_df.isna().sum())
@@ -100,7 +115,7 @@ class Data:
 
 	def remove_nan(self):
 		self.handle_numeric_nans()
-		#self.handle_cat_nans()
+		self.handle_cat_nans()
 						
 	def handle_numeric_nans(self):
 		if self.task == 'classification':
@@ -130,8 +145,11 @@ class Data:
 			classwise_mean[c] = {self.columns[i]: temp[self.columns[i]].fillna(0).values.mean() for i in range(len(self.columns)) if self.dtype_dict[self.columns[i]] != np.dtype('O')}
 		return classes, classwise_mean
 
-		
+	def handle_cat_nans(self):
+		if self.task == 'classification':
+				for col in self.nan_list:
+					if self.dtype_dict[col] == np.dtype('O'):
+						self.main_df[col] = self.main_df[col].fillna("Missing_"+col)
 
 data = Data("D:/Machine Learning Datasets/titanic/train.csv", "classification")
-print(data.main_df)
-print(data.y_labels)
+print(data.main_df.head())
