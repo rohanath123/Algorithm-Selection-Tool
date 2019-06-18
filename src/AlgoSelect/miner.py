@@ -61,8 +61,11 @@ class InnerMiner:
             driver.find_element_by_xpath("//div[contains(@class, 'sc-eQkpkc ocQYf')]").click()
         except:
             pass
-        continue_link = driver.find_element_by_xpath("//div[contains(@class, 'markdown-converter__text--rendered')]")
-        save = continue_link.text
+        try:
+            continue_link = driver.find_element_by_xpath("//div[contains(@class, 'markdown-converter__text--rendered')]")
+            save = continue_link.text
+        except:
+            save = link
         driver.quit()
         return save
 
@@ -78,6 +81,7 @@ print(len(LinkCollection))
 ContentCollection = []
 TypeCollection = []
 for i in range(len(LinkCollection)):
+    print(i)
     ContentCollection.append(InnerMiner.start(LinkCollection[i]))
     if i<container[0][1]:
         TypeCollection.append(1)
